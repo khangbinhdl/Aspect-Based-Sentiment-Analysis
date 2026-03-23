@@ -110,6 +110,15 @@ streamlit run ui/app.py --server.port=8501 --server.address=localhost
 - Task head: Token classification (3 labels)
 - Inference mode: no re-training, load from `saved_models/distilbert_model`
 
+## 📊 Benchmark Performance (F1 Score)
+
+F1 score values collected from notebook workflow and saved artifacts:
+
+| Model | Test F1 score |
+| --- | ---: |
+| LSTM | 37.44% |
+| DistilBERT | 75.48% |
+
 ## 🌐 API Endpoints
 
 - GET `/health`: health check
