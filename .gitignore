@@ -1,0 +1,48 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Python cache / build
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Runtime logs
+logs/
+*.log
+
+# Streamlit local state
+.streamlit/
+
+# Model artifacts (downloaded externally)
+saved_models/*
+!saved_models/.gitkeep
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
