@@ -92,12 +92,6 @@ python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000 --reload
 streamlit run ui/app.py --server.port=8501 --server.address=localhost
 ```
 
-## 📊 ABTE Labels
-
-- O (0): Non-aspect token
-- B-Term (1): Begin of aspect term
-- I-Term (2): Inside of aspect term
-
 ## 📝 Model Specifications
 
 ### Custom LSTM (ABTE + ABSC)
