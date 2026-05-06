@@ -1,8 +1,12 @@
-# Aspect-Based Term Extraction Inference Project
+# Aspect-Based Sentiment Analysis (Two-Stage) Inference Project
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1JnUePAQBs9Y1Byyk8Bele7fh0qe_FuM3)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12AqOSj-AEPnaTIht3LYqSLhUhws2dOt4?usp=sharing)
 
 This repository is a production-style refactor of the original Colab notebook above, with GitHub Copilot support for code organization, refactoring, and building inference apps (FastAPI + Streamlit).
+
+This is a **two-stage ABSA pipeline**:
+- **Stage 1 (ABTE):** extract aspect terms from the sentence.
+- **Stage 2 (ABSC):** predict the sentiment for each extracted term.
 
 You can download the pre-trained model weights from this [Google Drive folder](https://drive.google.com/drive/folders/1mGfYKVOJNzUYQPw5QC7ZeExiWHTikxmN?usp=sharing) and place them in the `saved_models/` directory.
 
@@ -25,10 +29,10 @@ You can download the pre-trained model weights from this [Google Drive folder](h
 │   └── app.py                    # UI application
 ├── notebooks/                    # Jupyter notebooks and exported scripts
 ├── saved_models/                 # Pre-trained model weights
-│   ├── rnn_model/
-│   ├── lstm_model/
-│   ├── gru_model/
-│   └── distilbert_model/
+│   ├── abte-bilstm/
+│   ├── abte-minilm/
+│   ├── absc-bilstm/
+│   └── absc-minilm/
 ├── requirements.txt              # Python dependencies
 ├── Makefile                      # Commands for easy execution
 └── README.md                     # This file
@@ -96,40 +100,50 @@ streamlit run ui/app.py --server.port=8501 --server.address=localhost
 
 ## 📝 Model Specifications
 
-### Custom LSTM
+### Custom LSTM (ABTE + ABSC)
 
-- Embedding Dimension: 256
-- Hidden Size: 256
-- BiLSTM: True
-- Tokenization: Word-level tokenizer
-- Max Sequence Length: configurable via `LSTM_MAX_LENGTH` (default: 128)
+- Configuration is loaded from each model folder under `saved_models/` (see `config.json`).
+- The service reads those configs to build the correct LSTM architecture for ABTE/ABSC.
+- Tokenization: word-level tokenizer.
+- Max sequence length: configurable via `LSTM_MAX_LENGTH` (default: 128).
 
-### DistilBERT
+### MiniLM (ABTE + ABSC)
 
-- Pre-trained: distilbert-base-uncased
-- Task head: Token classification (3 labels)
-- Inference mode: no re-training, load from `saved_models/distilbert_model`
+- Use `sentence-transformers/all-MiniLM-L6-v2` or other MiniLM variants such as L12.
+- Typical parameters: hidden size, number of layers, and max length come from the selected checkpoint.
 
-## 📊 Benchmark Performance (F1 Score)
+## 📊 Benchmark Performance
 
-F1 score values collected from notebook workflow and saved artifacts:
+F1 is the primary metric. Scores below are on the test split.
 
-| Model | Test F1 score |
-| --- | ---: |
-| LSTM | 37.44% |
-| DistilBERT | 75.48% |
+### ABSC (Sentiment Classification)
+
+| Model | Accuracy | Precision | Recall | F1 |
+| --- | ---: | ---: | ---: | ---: |
+| BiLSTM ABSC | 0.6577 | 0.5816 | 0.5871 | 0.5720 |
+| MiniLM ABSC | 0.8490 | 0.7966 | 0.7585 | 0.7735 |
+
+### ABTE (Term Extraction)
+
+| Model | Accuracy | Precision | Recall | F1 |
+| --- | ---: | ---: | ---: | ---: |
+| BiLSTM ABTE | 0.9271 | 0.7524 | 0.7784 | 0.7652 |
+| MiniLM ABTE | 0.9595 | 0.8629 | 0.8714 | 0.8671 |
 
 ## 🌐 API Endpoints
 
 - GET `/health`: health check
-- GET `/models`: list available model directories under `saved_models/`
-- POST `/predict`: run ABTE inference
+- GET `/models`: list ABTE/ABSC models under `saved_models/`
+- POST `/predict`: run ABSA inference (ABTE -> ABSC)
 
 Request example:
 
 ```json
 {
   "text": "The bread is top notch as well",
-  "model_name": "distilbert_model"
+  "abte_model_name": "abte-minilm",
+  "absc_model_name": "absc-minilm",
+  "term": null,
+  "device": "auto"
 }
 ```
